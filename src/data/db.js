@@ -20,7 +20,7 @@ async function getAllUsers() {
 
 async function getUserById(id) {
     try {
-        const query = 'select id, name, email From user where id = ?'
+        const query = 'select * From user where id = ?'
         const [rows] = await conn.query(query, [id])
         return http.returnSuccess(rows[0])
     } catch (error) {
@@ -38,8 +38,42 @@ async function createUser(user) {
     }
 }
 
+async function updateTaxDataUser(taxData) {
+    try {
+        const birthDate = new Date(taxData.birthDate)
+        const query = 'UPDATE `user` SET `birthDay` = ?, `phone` = ?, `cpf` = ? WHERE (`id` = ?)'
+        const [result] = await conn.query(query, [birthDate, taxData.phone, taxData.cpf, taxData.id])
+        return getUserById(result.insertId)
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
+async function getAddressByUserId(userId) {
+    try {
+        const query = 'select * From address where userId = ?'
+        const [rows] = await conn.query(query, [userId])
+        return http.returnSuccess(rows)
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
+async function saveAddress(address) {
+    try {
+        const query = 'INSERT INTO `address` (`userId`, `cep`, `number`, `street`, `district`, `complement`, `state`, `city`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+        const [result] = await conn.query(query, [address.userId, address.cep, address.number, address.street, address.district, address.complement, address.state, address.city])
+        return getAddressByUserId(address.userId)
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
 module.exports = {
     getAllUsers,
     getUserById,
-    createUser
+    createUser,
+    updateTaxDataUser,
+    saveAddress,
+    getAddressByUserId
 }

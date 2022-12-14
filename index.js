@@ -19,8 +19,23 @@ server.get('/user/:id', async (req, res) => {
 
 server.post('/user', async (req, res) => {
     const user = {id, name, email, password, userType} = req.body
-    console.log("Request = " + JSON.stringify(user))
+    console.log("Request = " + user)
     const result = await db.createUser(user)
+    console.log("Response = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    return res.status(result[0]).json(result[1])
+});
+
+server.put('/user', async (req, res) => {
+    const taxData = {id, birthDate, phone, cpf} = req.body
+    console.log("Request = " + taxData)
+    const result = await db.updateTaxDataUser(taxData)
+    console.log("Response = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    return res.status(result[0]).json(result[1])
+});
+
+server.post('/address', async (req, res) => {
+    const address = {userId, cep, number, street, district, complement, state, city} = req.body
+    const result = await db.saveAddress(address)
     console.log("Response = " + result[0] + ' - ' + JSON.stringify(result[1]))
     return res.status(result[0]).json(result[1])
 });
