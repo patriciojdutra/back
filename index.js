@@ -47,6 +47,28 @@ server.get('/userTerms/:id', async (req, res) => {
     return res.status(result[0]).json(result[1])
 });
 
+server.get('/terms', async (req, res) => {
+    const result = await db.getTerms()
+    console.log("Response = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    return res.status(result[0]).json(result[1])
+});
+
+server.get('/terms/:id', async (req, res) => {
+    const id = req.params.id
+    const result = await db.getUserTermById(id)
+    let count = Object.keys(result[1].data).length
+    console.log("Response = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    return res.status(result[0]).json(result[1])
+});
+
+server.put('/terms', async (req, res) => {
+    const userId = {userId} = req.body
+    console.log("Request = " + JSON.stringify(userId))
+    const result = await db.updateUserTerms(userId)
+    console.log("Response = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    return res.status(result[0]).json(result[1])
+});
+
 server.listen(3000, () => {
     console.log("Servidor esta rodando.....")
 });

@@ -33,6 +33,7 @@ async function createUser(user) {
     try {
         const query = 'INSERT INTO `user` (`id`,`name`,`email`,`password`,`userType`) VALUES (?, ?, ?, ?, ?)'
         const [result] = await conn.query(query, [user.id, user.name, user.email, user.password, user.userType])
+        saveUserTerms(user.id)
         return getUserById(result.insertId)
     } catch (error) {
         return http.returnError(error)
@@ -72,13 +73,44 @@ async function saveAddress(address) {
 
 async function getUserTermById(id) {
     try {
-        const query = 'SELECT term FROM userTerms as T0 INNER JOIN terms as T1 ON T0.version = T1.version WHERE T0.userId = ? AND T1.id = (SELECT count(id) FROM terms);'
+        const query = 'SELECT IF ((SELECT count(term) FROM userTerms as T0 INNER JOIN terms as T1 ON T0.version = T1.version WHERE T0.userId = ? AND T1.currentVersion = 1) = 0, "true", "false") as term;'
         const [rows] = await conn.query(query, [id])
         return http.returnSuccess(rows[0])
     } catch (error) {
         return http.returnError(error)
     }
 }
+
+async function getTerms() {
+    try {
+        const query = 'SELECT * FROM terms WHERE id = (SELECT count(id) FROM terms);'
+        const [rows] = await conn.query(query)
+        return http.returnSuccess(rows[0])
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
+async function updateUserTerms(userId) {
+    try {
+        const query = 'UPDATE userTerms SET version = (SELECT version FROM terms WHERE id = (SELECT count(id) FROM terms)) WHERE userId = ?;'
+        const [result] = await conn.query(query, [userId])
+        return http.returnSuccess(rows[0])
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
+async function saveUserTerms(userId) {
+    try {
+        const query = 'INSERT INTO userTerms (userId, version) VALUES (?, (SELECT version FROM terms WHERE id = (SELECT count(id) FROM terms)));'
+        const [result] = await conn.query(query, [userId])
+        return http.returnSuccess(rows[0])
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
 
 module.exports = {
     getAllUsers,
@@ -87,5 +119,6 @@ module.exports = {
     updateTaxDataUser,
     saveAddress,
     getAddressByUserId,
-    getUserTermById
+    getUserTermById,
+    getTerms
 }
