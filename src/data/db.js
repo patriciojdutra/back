@@ -4,8 +4,8 @@ const http = require('../utils/returnStatusHttp')
 const conn = mysql.createPool({
     host: 'localhost',
     user: 'root',
-    password: 'root1234', //root1234
-    database: 'wellcomeDB'
+    password: '12345678', //root1234
+    database: 'wellcome'
 })
 
 async function getAllUsers() {
@@ -27,6 +27,7 @@ async function getUserById(id) {
         return http.returnError(error)
     }
 }
+
 
 async function createUser(user) {
     try {
@@ -69,11 +70,22 @@ async function saveAddress(address) {
     }
 }
 
+async function getUserTermById(id) {
+    try {
+        const query = 'SELECT term FROM userTerms as T0 INNER JOIN terms as T1 ON T0.version = T1.version WHERE T0.userId = ? AND T1.id = (SELECT count(id) FROM terms);'
+        const [rows] = await conn.query(query, [id])
+        return http.returnSuccess(rows[0])
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
 module.exports = {
     getAllUsers,
     getUserById,
     createUser,
     updateTaxDataUser,
     saveAddress,
-    getAddressByUserId
+    getAddressByUserId,
+    getUserTermById
 }
