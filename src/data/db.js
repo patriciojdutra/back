@@ -4,8 +4,8 @@ const http = require('../utils/returnStatusHttp')
 const conn = mysql.createPool({
     host: 'localhost',
     user: 'root',
-    password: '12345678', //root1234
-    database: 'wellcome'
+    password: 'root1234', //root1234
+    database: 'wellcomeDB'
 })
 
 async function getAllUsers() {
@@ -31,8 +31,8 @@ async function getUserById(id) {
 
 async function createUser(user) {
     try {
-        const query = 'INSERT INTO `user` (`id`,`name`,`email`,`password`,`userType`) VALUES (?, ?, ?, ?, ?)'
-        const [result] = await conn.query(query, [user.id, user.name, user.email, user.password, user.userType])
+        const query = 'INSERT INTO `user` (`id`,`name`,`email`,`password`,`userType`, `imageUrl`) VALUES (?, ?, ?, ?, ?, ?)'
+        const [result] = await conn.query(query, [user.id, user.name, user.email, user.password, user.userType, user.imageUrl])
         saveUserTerms(user.id)
         return getUserById(result.insertId)
     } catch (error) {
@@ -43,8 +43,8 @@ async function createUser(user) {
 async function updateTaxDataUser(taxData) {
     try {
         const birthDate = new Date(taxData.birthDate)
-        const query = 'UPDATE `user` SET `birthDay` = ?, `phone` = ?, `cpf` = ? WHERE (`id` = ?)'
-        const [result] = await conn.query(query, [birthDate, taxData.phone, taxData.cpf, taxData.id])
+        const query = 'UPDATE `user` SET `birthDay` = ?, `phone` = ?, `cpf` = ?, `imageUrl` = ? WHERE (`id` = ?)'
+        const [result] = await conn.query(query, [birthDate, taxData.phone, taxData.cpf, taxData.imageUrl, taxData.id])
         return getUserById(result.insertId)
     } catch (error) {
         return http.returnError(error)
@@ -55,7 +55,7 @@ async function getAddressByUserId(userId) {
     try {
         const query = 'select * From address where userId = ?'
         const [rows] = await conn.query(query, [userId])
-        return http.returnSuccess(rows)
+        return http.returnSuccess(rows[0])
     } catch (error) {
         return http.returnError(error)
     }
@@ -95,7 +95,7 @@ async function updateUserTerms(userId) {
     try {
         const query = 'UPDATE userTerms SET version = (SELECT version FROM terms WHERE id = (SELECT count(id) FROM terms)) WHERE userId = ?;'
         const [result] = await conn.query(query, [userId])
-        return http.returnSuccess(rows[0])
+        return http.returnSuccess({})
     } catch (error) {
         return http.returnError(error)
     }
@@ -120,5 +120,6 @@ module.exports = {
     saveAddress,
     getAddressByUserId,
     getUserTermById,
-    getTerms
+    getTerms,
+    updateUserTerms
 }

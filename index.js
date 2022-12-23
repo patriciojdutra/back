@@ -6,66 +6,69 @@ const db = require('./src/data/db')
 
 server.get('/user', async (req, res) => {
     const result = await db.getAllUsers()
-    console.log(result[0] + ' - ' +result[1])
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
     return res.status(result[0]).json(result[1])
 });
 
 server.get('/user/:id', async (req, res) => {
-    const id = req.params.id
-    const result = await db.getUserById(id)
-    console.log(result[0] + ' - ' +result[1])
+    console.log("\nRequest = " + req.params.id)
+    const result = await db.getUserById(req.params.id)
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
     return res.status(result[0]).json(result[1])
 });
 
 server.post('/user', async (req, res) => {
-    const user = {id, name, email, password, userType} = req.body
-    console.log("Request = " + user)
-    const result = await db.createUser(user)
-    console.log("Response = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    console.log("\nRequest = " + JSON.stringify(req.body))
+    const result = await db.createUser(req.body)
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
     return res.status(result[0]).json(result[1])
 });
 
 server.put('/user', async (req, res) => {
-    const taxData = {id, birthDate, phone, cpf} = req.body
-    console.log("Request = " + JSON.stringify(taxData))
-    const result = await db.updateTaxDataUser(taxData)
-    console.log("Response = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    console.log("\nRequest = " + JSON.stringify(req.body))
+    const result = await db.updateTaxDataUser(req.body)
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    return res.status(result[0]).json(result[1])
+});
+
+server.get('/address/:id', async (req, res) => {
+    console.log("\nRequest = " + req.params.id)
+    const result = await db.getAddressByUserId(req.params.id)
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
     return res.status(result[0]).json(result[1])
 });
 
 server.post('/address', async (req, res) => {
-    const address = {userId, cep, number, street, district, complement, state, city} = req.body
-    const result = await db.saveAddress(address)
-    console.log("Response = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    console.log("\nRequest = " + JSON.stringify(req.body))
+    const result = await db.saveAddress(req.body)
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
     return res.status(result[0]).json(result[1])
 });
 
 server.get('/userTerms/:id', async (req, res) => {
-    const id = req.params.id
-    const result = await db.getUserTermById(id)
-    console.log("Response = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    console.log("\nRequest = " + req.params.id)
+    const result = await db.getUserTermById(req.params.id)
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
     return res.status(result[0]).json(result[1])
 });
 
 server.get('/terms', async (req, res) => {
     const result = await db.getTerms()
-    console.log("Response = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
     return res.status(result[0]).json(result[1])
 });
 
 server.get('/terms/:id', async (req, res) => {
-    const id = req.params.id
-    const result = await db.getUserTermById(id)
-    let count = Object.keys(result[1].data).length
-    console.log("Response = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    console.log("\nRequest = " + req.params.id)
+    const result = await db.getUserTermById(req.params.id)
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
     return res.status(result[0]).json(result[1])
 });
 
 server.put('/terms', async (req, res) => {
-    const userId = {userId} = req.body
-    console.log("Request = " + JSON.stringify(userId))
-    const result = await db.updateUserTerms(userId)
-    console.log("Response = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    console.log("\nRequest = " + JSON.stringify(req.body))
+    const result = await db.updateUserTerms(req.body.userId)
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
     return res.status(result[0]).json(result[1])
 });
 
