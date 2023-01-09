@@ -63,8 +63,18 @@ async function getAddressByUserId(userId) {
 
 async function saveAddress(address) {
     try {
-        const query = 'INSERT INTO `address` (`userId`, `cep`, `number`, `street`, `district`, `complement`, `state`, `city`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-        const [result] = await conn.query(query, [address.userId, address.cep, address.number, address.street, address.district, address.complement, address.state, address.city])
+        const query = 'INSERT INTO `address` (`userId`, `cep`, `number`, `street`, `district`, `complement`, `state`, `city`, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        const [result] = await conn.query(query, [address.userId, address.cep, address.number, address.street, address.district, address.complement, address.state, address.city, address.latitude, address.longitude])
+        return getAddressByUserId(address.userId)
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
+async function updateAddress(address) {
+    try {
+        const query = 'UPDATE `address` SET `cep` = ?, `number` = ?, `street` = ?, `district` = ?, `complement` = ?, `state` = ?, `city` = ? WHERE (`id` = ?)'
+        const [result] = await conn.query(query, [address.cep, address.number, address.street, address.district, address.complement, address.state, address.city, address.id])
         return getAddressByUserId(address.userId)
     } catch (error) {
         return http.returnError(error)
@@ -111,6 +121,25 @@ async function saveUserTerms(userId) {
     }
 }
 
+async function getPlateById(id) {
+    try {
+        const query = 'SELECT * FROM plate WHERE userId = ?;'
+        const [rows] = await conn.query(query, [id])
+        return http.returnSuccess(rows)
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
+async function savePlate(plate) {
+    try {
+        const query = 'INSERT INTO plate (`userId`, `nome`, `descricao`, `preco`, `quantidade`, `data`, `horario`, `obs`, urlImage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);'
+        const [result] = await conn.query(query, [plate.userId, plate.nome, plate.descricao, plate.preco, plate.quantidade, plate.data, plate.horario, plate.obs, plate.urlImage])
+        return http.returnSuccess(result)
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
 
 module.exports = {
     getAllUsers,
@@ -121,5 +150,8 @@ module.exports = {
     getAddressByUserId,
     getUserTermById,
     getTerms,
-    updateUserTerms
+    updateUserTerms,
+    updateAddress,
+    savePlate,
+    getPlateById
 }

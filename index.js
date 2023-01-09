@@ -45,6 +45,13 @@ server.post('/address', async (req, res) => {
     return res.status(result[0]).json(result[1])
 });
 
+server.put('/address', async (req, res) => {
+    console.log("\nRequest = " + JSON.stringify(req.body))
+    const result = await db.updateAddress(req.body)
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    return res.status(result[0]).json(result[1])
+});
+
 server.get('/userTerms/:id', async (req, res) => {
     console.log("\nRequest = " + req.params.id)
     const result = await db.getUserTermById(req.params.id)
@@ -68,6 +75,20 @@ server.get('/terms/:id', async (req, res) => {
 server.put('/terms', async (req, res) => {
     console.log("\nRequest = " + JSON.stringify(req.body))
     const result = await db.updateUserTerms(req.body.userId)
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    return res.status(result[0]).json(result[1])
+});
+
+server.get('/plate/:id', async (req, res) => {
+    console.log("\nRequest = " + req.params.id)
+    const result = await db.getPlateById(req.params.id)
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    return res.status(result[0]).json(result[1])
+});
+
+server.post('/plate', async (req, res) => {
+    console.log("\nRequest = " + JSON.stringify(req.body))
+    const result = await db.savePlate(req.body)
     console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
     return res.status(result[0]).json(result[1])
 });
