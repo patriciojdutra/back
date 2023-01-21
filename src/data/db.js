@@ -43,9 +43,41 @@ async function createUser(user) {
 async function updateTaxDataUser(taxData) {
     try {
         const birthDate = new Date(taxData.birthDate)
-        const query = 'UPDATE `user` SET `birthDay` = ?, `phone` = ?, `cpf` = ?, `imageUrl` = ? WHERE (`id` = ?)'
+        const query = 'UPDATE `user` SET `birthDate` = ?, `phone` = ?, `cpf` = ?, `imageUrl` = ? WHERE (`id` = ?)'
         const [result] = await conn.query(query, [birthDate, taxData.phone, taxData.cpf, taxData.imageUrl, taxData.id])
         return getUserById(result.insertId)
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
+async function updateUser(user) {
+    var q = 'UPDATE `user` SET '
+    var endQuery = "WHERE (`id` = ?)"
+    var l = []
+    var i = 0
+    try {
+        for (const prop in user) {
+            if (prop != "id") {
+                if (i < Object.keys(user).length - 2) {
+                    q += prop + " = ?, "
+                } else {
+                    q += prop + " = ? "
+                }
+
+                if (prop == "birthDate") {
+                    const birthDate = new Date(user[prop])
+                    l[i] = birthDate
+                } else {
+                    l[i] = user[prop]
+                }
+                i++
+            }
+        }
+        q = q + endQuery
+        l[i] = user["id"]
+        const [result] = await conn.query(q,l)
+        return getUserById(user.id)
     } catch (error) {
         return http.returnError(error)
     }
@@ -131,6 +163,29 @@ async function getPlateById(id) {
     }
 }
 
+
+async function getPlatesByLocation(latitude, longitude, distance) {
+    try {
+        const query = 'SELECT DISTINCT T1.*, T0.latitude, T0.longitude, '
+            + '(6371 * acos( '
+            + 'cos( radians(?)) '
+            + '* cos( radians( T0.latitude )) '
+            + '* cos( radians( T0.longitude ) - radians(?) ) '
+            + '+ sin( radians(?) )'
+            + '* sin( radians( T0.latitude )))) AS distance '
+            + 'FROM address T0 '
+            + 'INNER JOIN plate T1 '
+            + 'ON T0.userId = T1.userId '
+            + 'HAVING distance < ? '
+            + 'ORDER BY distance ASC '
+            + 'LIMIT 10; '
+        const [rows] = await conn.query(query, [latitude, longitude, latitude, distance])
+        return http.returnSuccess(rows)
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
 async function savePlate(plate) {
     try {
         const query = 'INSERT INTO plate (`userId`, `nome`, `descricao`, `preco`, `quantidade`, `data`, `horario`, `obs`, urlImage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);'
@@ -153,5 +208,7 @@ module.exports = {
     updateUserTerms,
     updateAddress,
     savePlate,
-    getPlateById
+    getPlateById,
+    getPlatesByLocation, 
+    updateUser
 }

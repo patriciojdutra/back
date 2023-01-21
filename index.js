@@ -24,9 +24,16 @@ server.post('/user', async (req, res) => {
     return res.status(result[0]).json(result[1])
 });
 
+//server.put('/user', async (req, res) => {
+//    console.log("\nRequest = " + JSON.stringify(req.body))
+//    const result = await db.updateTaxDataUser(req.body)
+//    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
+//    return res.status(result[0]).json(result[1])
+//});
+
 server.put('/user', async (req, res) => {
     console.log("\nRequest = " + JSON.stringify(req.body))
-    const result = await db.updateTaxDataUser(req.body)
+    const result = await db.updateUser(req.body)
     console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
     return res.status(result[0]).json(result[1])
 });
@@ -89,6 +96,13 @@ server.get('/plate/:id', async (req, res) => {
 server.post('/plate', async (req, res) => {
     console.log("\nRequest = " + JSON.stringify(req.body))
     const result = await db.savePlate(req.body)
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    return res.status(result[0]).json(result[1])
+});
+
+server.get('/plate/:latitude/:longitude/:distance', async (req, res) => {
+    console.log("\nRequest = " + JSON.stringify(req.params))
+    const result = await db.getPlatesByLocation(req.params.latitude, req.params.longitude, req.params.distance)
     console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
     return res.status(result[0]).json(result[1])
 });
