@@ -163,6 +163,20 @@ async function getPlateById(id) {
     }
 }
 
+async function getDetailsPlate(id) {
+    try {
+        const query = 'SELECT * FROM plate T0 '
+        + 'INNER JOIN address T1 '
+        + 'ON T0.userId = T1.userId '
+        + 'INNER JOIN user T2 '
+        + 'ON T0.userId = T2.id '
+        + 'where T0.id = ?;'
+        const [rows] = await conn.query(query, [id])
+        return http.returnSuccess(rows[0])
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
 
 async function getPlatesByLocation(latitude, longitude, distance) {
     try {
@@ -210,5 +224,6 @@ module.exports = {
     savePlate,
     getPlateById,
     getPlatesByLocation, 
-    updateUser
+    updateUser,
+    getDetailsPlate
 }

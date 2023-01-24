@@ -93,6 +93,13 @@ server.get('/plate/:id', async (req, res) => {
     return res.status(result[0]).json(result[1])
 });
 
+server.get('/plate/details/:id', async (req, res) => {
+    console.log("\nRequest = " + req.params.id)
+    const result = await db.getDetailsPlate(req.params.id)
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    return res.status(result[0]).json(result[1])
+});
+
 server.post('/plate', async (req, res) => {
     console.log("\nRequest = " + JSON.stringify(req.body))
     const result = await db.savePlate(req.body)
