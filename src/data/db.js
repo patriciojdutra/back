@@ -8,16 +8,6 @@ const conn = mysql.createPool({
     database: 'wellcomeDB'
 })
 
-async function getAllUsers() {
-    try {
-        const query = 'select id, name, email From user'
-        const [rows] = await conn.query(query)
-        return http.returnSuccess(rows)
-    } catch (error) {
-        return http.returnError(error)
-    }
-}
-
 async function getUserById(id) {
     try {
         const query = 'select * From user where id = ?'
@@ -210,8 +200,27 @@ async function savePlate(plate) {
     }
 }
 
+async function createReserve(reserve) {
+    try {
+        const query = 'INSERT INTO reserve (`status`, `cookerId`, `comerId`, `plateId`, `orderId`) VALUES (?, ?, ?, ?, ?);'
+        const [result] = await conn.query(query, [reserve.status, reserve.cookerId, reserve.comerId, reserve.plateId, reserve.orderId])
+        return getReserveById(result.insertId)
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
+async function getReserveById(id) {
+    try {
+        const query = 'select * From reserve where reserveId = ?'
+        const [rows] = await conn.query(query, [id])
+        return http.returnSuccess(rows[0])
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
 module.exports = {
-    getAllUsers,
     getUserById,
     createUser,
     updateTaxDataUser,
@@ -225,5 +234,6 @@ module.exports = {
     getPlateById,
     getPlatesByLocation, 
     updateUser,
-    getDetailsPlate
+    getDetailsPlate,
+    createReserve
 }
