@@ -114,6 +114,27 @@ server.post('/reserve', async (req, res) => {
     return res.status(result[0]).json(result[1])
 });
 
+server.get('/reserve/comer/:status/:id', async (req, res) => {
+    console.log("\nRequest = " + JSON.stringify(req.params))
+    const result = await db.getReserveByComerId(req.params)
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    return res.status(result[0]).json(result[1])
+});
+
+server.get('/reserve/cooker/:status/:id', async (req, res) => {
+    console.log("\nRequest = " + JSON.stringify(req.params))
+    const result = await db.getReserveByCookerId(req.params)
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    return res.status(result[0]).json(result[1])
+});
+
+server.put('/reserve', async (req, res) => {
+    console.log("\nRequest = " + JSON.stringify(req.body))
+    const result = await db.updateReserve(req.body)
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    return res.status(result[0]).json(result[1])
+});
+
 server.listen(3000, () => {
     console.log("Servidor esta rodando.....")
 });

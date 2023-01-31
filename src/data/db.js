@@ -220,6 +220,47 @@ async function getReserveById(id) {
     }
 }
 
+async function getReserveByComerId(params) {
+    try {
+        const query = 'SELECT * FROM reserve T0 '
+        + 'INNER JOIN plate T1 '
+        + 'ON T0.plateId = T1.id '
+        + 'INNER JOIN user T2 '
+        + 'ON T0.cookerId = T2.id '
+        + 'where comerId = ? and status = ?'
+        const [rows] = await conn.query(query, [params.id, params.status])
+        return http.returnSuccess(rows)
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
+async function getReserveByCookerId(params) {
+    try {
+        const query = 'SELECT * FROM reserve T0 '
+        + 'INNER JOIN plate T1 '
+        + 'ON T0.plateId = T1.id '
+        + 'INNER JOIN user T2 '
+        + 'ON T0.cookerId = T2.id '
+        + 'where cookerId = ? and status = ?'
+        const [rows] = await conn.query(query, [params.id, params.status])
+        return http.returnSuccess(rows)
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
+async function updateReserve(reserve) { 
+    try {
+        var query = 'UPDATE reserve SET status = ? WHERE reserveId = ?'
+        const [result] = await conn.query(query,[reserve.status, reserve.reserveId])
+        return getReserveById(result.insertId)
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
+
 module.exports = {
     getUserById,
     createUser,
@@ -235,5 +276,8 @@ module.exports = {
     getPlatesByLocation, 
     updateUser,
     getDetailsPlate,
-    createReserve
+    createReserve,
+    getReserveByComerId,
+    getReserveByCookerId,
+    updateReserve
 }
