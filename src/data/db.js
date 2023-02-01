@@ -2,9 +2,9 @@ const mysql = require('mysql2/promise')
 const http = require('../utils/returnStatusHttp')
 
 const conn = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: 'root1234', //root1234
+    host: 'database-wellcome.czltjrexorxc.us-east-1.rds.amazonaws.com',
+    user: 'admin',
+    password: '12345678',
     database: 'wellcomeDB'
 })
 
