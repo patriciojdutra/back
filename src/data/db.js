@@ -192,8 +192,9 @@ async function getPlatesByLocation(latitude, longitude, distance) {
 
 async function savePlate(plate) {
     try {
+        const datePlate = new Date(plate.data)
         const query = 'INSERT INTO plate (`userId`, `nome`, `descricao`, `preco`, `quantidade`, `data`, `horario`, `obs`, urlImage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);'
-        const [result] = await conn.query(query, [plate.userId, plate.nome, plate.descricao, plate.preco, plate.quantidade, plate.data, plate.horario, plate.obs, plate.urlImage])
+        const [result] = await conn.query(query, [plate.userId, plate.nome, plate.descricao, plate.preco, plate.quantidade, datePlate, plate.horario, plate.obs, plate.urlImage])
         return http.returnSuccess(result)
     } catch (error) {
         return http.returnError(error)
