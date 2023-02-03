@@ -227,7 +227,7 @@ async function getReserveByComerId(params) {
         + 'INNER JOIN plate T1 '
         + 'ON T0.plateId = T1.id '
         + 'INNER JOIN user T2 '
-        + 'ON T0.cookerId = T2.id '
+        + 'ON T0.comerId = T2.id '
         + 'where comerId = ? and status = ?'
         const [rows] = await conn.query(query, [params.id, params.status])
         return http.returnSuccess(rows)
