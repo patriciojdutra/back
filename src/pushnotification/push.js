@@ -2,13 +2,13 @@ var FCM = require('fcm-node');
     var serverKey = 'AAAAJCejK_k:APA91bFeph1hMJ60BJGMDDeztq_V_nRSpxjIPMQxSQuTIKdqNtcqs9QXMPe3oBAgzzWvkmDLv0VEaWMOTPl3MRHcNujwqI_RcQstLR9fpYAny-b_yGVwqloFvma7bldS2258gz6iIbtk';
     var fcm = new FCM(serverKey);
 
-function sendMessage(token){
+function sendMessage(token, title, message){
 
     var message = {
         to: token,
             notification: {
-                title: 'NotifcatioTestAPP',
-                body: '{"Message from node js app"}',
+                title: title,
+                body: message
             },
     
             data: { //you can send only notification or only data(or include both)
@@ -20,7 +20,7 @@ function sendMessage(token){
 
         fcm.send(message, function(err, response) {
             if (err) {
-                console.log("Something has gone wrong!"+err);
+                console.log("Erro ao enviar push notification! "+err);
                 console.log("Respponse:! "+response);
             } else {
                 // showToast("Successfully sent with response");

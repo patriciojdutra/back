@@ -1,5 +1,6 @@
 const mysql = require('mysql2/promise')
 const http = require('../utils/returnStatusHttp')
+const notification = require('../pushnotification/push')
 
 const conn = mysql.createPool({
     host: 'database-wellcome.czltjrexorxc.us-east-1.rds.amazonaws.com',
@@ -206,6 +207,15 @@ async function createReserve(reserve) {
     try {
         const query = 'INSERT INTO reserve (`status`, `cookerId`, `comerId`, `plateId`, `orderId`) VALUES (?, ?, ?, ?, ?);'
         const [result] = await conn.query(query, [reserve.status, reserve.cookerId, reserve.comerId, reserve.plateId, reserve.orderId])
+        
+        //notification change status
+        const cooker = await getUserById(reserve.cookerId)
+        const comer = await getUserById(reserve.comerId)
+        notification.sendMessage(
+            cooker[1].data.token, 
+            "Nova solicitação", 
+            "O comer " + comer[1].data.name + " esta aguardando sua resposta" )
+        
         return getReserveById(result.insertId)
     } catch (error) {
         return http.returnError(error)
@@ -243,7 +253,7 @@ async function getReserveByCookerId(params) {
         + 'INNER JOIN plate T1 '
         + 'ON T0.plateId = T1.id '
         + 'INNER JOIN user T2 '
-        + 'ON T0.cookerId = T2.id '
+        + 'ON T0.comerId = T2.id '
         + 'where cookerId = ? and status = ?'
         const [rows] = await conn.query(query, [params.id, params.status])
         return http.returnSuccess(rows)
@@ -256,7 +266,19 @@ async function updateReserve(reserve) {
     try {
         var query = 'UPDATE reserve SET status = ? WHERE reserveId = ?'
         const [result] = await conn.query(query,[reserve.status, reserve.reserveId])
-        return getReserveById(result.insertId)
+
+        //notification change status
+        const res = await getReserveById(reserve.reserveId)
+    
+        const comer = await getUserById(res[1].data.comerId)
+        const cooker = await getUserById(res[1].data.cookerId)
+        
+        notification.sendMessage(
+            comer[1].data.token, // token device
+            cooker[1].data.name + " respondeu sua solicitação", // title push
+            "") // msg push
+
+        return getReserveById(reserve.reserveId)
     } catch (error) {
         return http.returnError(error)
     }
