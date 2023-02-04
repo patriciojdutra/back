@@ -2,6 +2,7 @@ const express = require('express');
 const server = express();
 server.use(express.json())
 const db = require('./src/data/db')
+const not = require('./src/pushnotification/push')
 
 server.get('/user/:id', async (req, res) => {
     console.log("\nGetUserById Request = " + req.params.id)
@@ -134,6 +135,12 @@ server.put('/reserve', async (req, res) => {
     const result = await db.updateReserve(req.body)
     console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
     return res.status(result[0]).json(result[1])
+});
+
+server.get('/notification/:token', async (req, res) => {
+    console.log("\notification Request = " + req.params.token)
+    not.sendMessage(req.params.token)
+    return res.status(200).json("{}")
 });
 
 server.listen(3000, () => {

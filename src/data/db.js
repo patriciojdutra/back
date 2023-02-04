@@ -66,6 +66,7 @@ async function updateUser(user) {
         }
         q = q + endQuery
         l[i] = user["id"]
+        console.log(q)
         const [result] = await conn.query(q,l)
         return getUserById(user.id)
     } catch (error) {
