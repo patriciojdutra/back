@@ -155,6 +155,21 @@ async function getPlateById(id) {
     }
 }
 
+async function changeQuantityOfPlatesAvailableById(id, value) {
+    try {
+        if(value > 0){
+            const query = 'UPDATE plate SET quantidade = quantidade + ? WHERE id = ?'
+            const [rows] = await conn.query(query, [value, id])
+        }else{
+            const query = 'UPDATE plate SET quantidade = quantidade ? WHERE id = ? AND quantidade > 0'
+            const [rows] = await conn.query(query, [value, id])
+        }
+        return getPlateById(id)
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
 async function getDetailsPlate(id) {
     try {
         const query = 'SELECT * FROM plate T0 '
@@ -181,7 +196,7 @@ async function getPlatesByLocation(latitude, longitude, distance) {
             + '* sin( radians( T0.latitude )))) AS distance '
             + 'FROM address T0 '
             + 'INNER JOIN plate T1 '
-            + 'ON T0.userId = T1.userId '
+            + 'ON T0.userId = T1.userId AND T1.quantidade > 0 '
             + 'HAVING distance < ? '
             + 'ORDER BY distance ASC '
             + 'LIMIT 10; '
@@ -205,9 +220,11 @@ async function savePlate(plate) {
 
 async function createReserve(reserve) {
     try {
-        const query = 'INSERT INTO reserve (`status`, `cookerId`, `comerId`, `plateId`, `orderId`) VALUES (?, ?, ?, ?, ?);'
-        const [result] = await conn.query(query, [reserve.status, reserve.cookerId, reserve.comerId, reserve.plateId, reserve.orderId])
+        const query = 'INSERT INTO reserve (`status`, `cookerId`, `comerId`, `plateId`, `orderId`, chargeId) VALUES (?, ?, ?, ?, ?, ?);'
+        const [result] = await conn.query(query, [reserve.status, reserve.cookerId, reserve.comerId, reserve.plateId, reserve.orderId, reserve.chargeId])
         
+        const plate = await changeQuantityOfPlatesAvailableById(reserve.plateId, -1)
+
         //notification change status
         const cooker = await getUserById(reserve.cookerId)
         const comer = await getUserById(reserve.comerId)
@@ -267,12 +284,16 @@ async function updateReserve(reserve) {
         var query = 'UPDATE reserve SET status = ? WHERE reserveId = ?'
         const [result] = await conn.query(query,[reserve.status, reserve.reserveId])
 
-        //notification change status
         const res = await getReserveById(reserve.reserveId)
-    
         const comer = await getUserById(res[1].data.comerId)
         const cooker = await getUserById(res[1].data.cookerId)
+
+        if(reserve.status == "canceled"){
+            console.log("\n Alterando quantidade disponivel do prato: " + res[1].data.plateId)
+            const plate = await changeQuantityOfPlatesAvailableById(res[1].data.plateId, 1)
+        }
         
+        //notification change status
         notification.sendMessage(
             comer[1].data.token, // token device
             cooker[1].data.name + " respondeu sua solicitação", // title push

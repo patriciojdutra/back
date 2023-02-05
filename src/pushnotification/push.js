@@ -24,7 +24,7 @@ function sendMessage(token, title, message){
                 console.log("Respponse:! "+response);
             } else {
                 // showToast("Successfully sent with response");
-                console.log("Successfully sent with response: ", response);
+                console.log("Notificação enviada com sucesso para:  " + token , response);
             }
     
         });
