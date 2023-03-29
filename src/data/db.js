@@ -3,10 +3,10 @@ const http = require('../utils/returnStatusHttp')
 const notification = require('../pushnotification/push')
 
 const conn = mysql.createPool({
-    host: 'database-wellcome.czltjrexorxc.us-east-1.rds.amazonaws.com',
-    user: 'admin',
-    password: '12345678',
-    database: 'wellcomeDB'
+    host: 'mysql25-farm10.kinghost.net',
+    user: 'wellcome_add1',
+    password: 't3xc8gzPjHyrnhS',
+    database: 'wellcome'
 })
 
 async function getUserById(id) {
