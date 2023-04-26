@@ -11,6 +11,13 @@ server.get('/user/:id', async (req, res) => {
     return res.status(result[0]).json(result[1])
 });
 
+server.delete('/user/:id', async (req, res) => {
+    console.log("\deleteUser Request = " + req.params.id)
+    const result = await db.deleteUserById(req.params.id)
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    return res.status(result[0]).json(result[1])
+});
+
 server.post('/user', async (req, res) => {
     console.log("\nCreateUser Request = " + JSON.stringify(req.body))
     const result = await db.createUser(req.body)
@@ -18,12 +25,13 @@ server.post('/user', async (req, res) => {
     return res.status(result[0]).json(result[1])
 });
 
-//server.put('/user', async (req, res) => {
-//    console.log("\nRequest = " + JSON.stringify(req.body))
-//    const result = await db.updateTaxDataUser(req.body)
-//    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
-//    return res.status(result[0]).json(result[1])
-//});
+server.put('/user', async (req, res) => {
+   console.log("\nRequest = " + JSON.stringify(req.body))
+   const result = await db.updateTaxDataUser(req.body)
+   console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
+   return res.status(result[0]).json(result[1])
+});
+
 
 server.put('/user', async (req, res) => {
     console.log("\nupdateUser Request = " + JSON.stringify(req.body))
@@ -143,7 +151,7 @@ server.get('/notification/:token', async (req, res) => {
     return res.status(200).json("{}")
 });
 
-server.listen(3000, () => {
-    console.log("Servidor esta rodando.....")
+server.listen(21048, () => {
+    console.log("Servidor esta rodando..... king host update")
 });
 

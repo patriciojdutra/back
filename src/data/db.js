@@ -19,6 +19,16 @@ async function getUserById(id) {
     }
 }
 
+async function deleteUserById(id) {
+    try {
+        const query = 'DELETE FROM user WHERE id = ?'
+        const [rows] = await conn.query(query, [id])
+        return getUserById(id)
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
 
 async function createUser(user) {
     try {
@@ -97,11 +107,20 @@ async function saveAddress(address) {
 
 async function updateAddress(address) {
     try {
-        const query = 'UPDATE `address` SET `cep` = ?, `number` = ?, `street` = ?, `district` = ?, `complement` = ?, `state` = ?, `city` = ? WHERE (`id` = ?)'
-        const [result] = await conn.query(query, [address.cep, address.number, address.street, address.district, address.complement, address.state, address.city, address.id])
-        return getAddressByUserId(address.userId)
+        const userAddress = await getAddressByUserId(address.userId);
+        if (userAddress.success && Object.keys(userAddress.data).length > 0) {
+            // usu�rio j� tem endere�o cadastrado, atualizar endere�o
+            const query = 'UPDATE `address` SET `cep` = ?, `number` = ?, `street` = ?, `district` = ?, `complement` = ?, `state` = ?, `city` = ? WHERE (`userId` = ?)';
+            const [result] = await conn.query(query, [address.cep, address.number, address.street, address.district, address.complement, address.state, address.city, address.userId]);
+            return getAddressByUserId(address.userId);
+        } else {
+            // usu�rio n�o tem endere�o cadastrado, salvar novo endere�o
+            const newAddress = { ...address, userId: address.userId };
+            const result = await saveAddress(newAddress);
+            return result;
+        }
     } catch (error) {
-        return http.returnError(error)
+        return http.returnError(error);
     }
 }
 
@@ -324,5 +343,6 @@ module.exports = {
     createReserve,
     getReserveByComerId,
     getReserveByCookerId,
-    updateReserve
+    updateReserve, 
+    deleteUserById
 }
