@@ -301,7 +301,7 @@ async function getReserveByComerId(params) {
             + 'INNER JOIN user T2 '
             + 'ON T0.cookerId = T2.id '
             + 'where comerId = ? '
-            + 'and status = \"scheduled" '
+            + 'and status = \"concluded" '
             + 'and Date(T1.data) < \"' + getCurrentDate() + "\""
 
         }else{
