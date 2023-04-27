@@ -268,14 +268,54 @@ async function getReserveById(id) {
     }
 }
 
+function getCurrentDate(){
+    const dataAtual = new Date();
+    const dia = dataAtual.getDate(); // Retorna o dia do mês (1-31)
+    const mes = dataAtual.getMonth() + 1; // Retorna o mês (0-11). Adiciona 1 para ajustar o índice baseado em zero.
+    const ano = dataAtual.getFullYear(); // Retorna o ano (quatro dígitos)
+    const dataFormatada = `${ano}-${mes}-${dia}`;
+    return dataFormatada
+}
+
 async function getReserveByComerId(params) {
     try {
-        const query = 'SELECT * FROM reserve T0 '
-        + 'INNER JOIN plate T1 '
-        + 'ON T0.plateId = T1.id '
-        + 'INNER JOIN user T2 '
-        + 'ON T0.cookerId = T2.id '
-        + 'where comerId = ? and status = ?'
+
+        var query = ""
+
+        if (params.status == "scheduled"){
+            //Retorna as reservas onde a data do prato é >= a data atual
+            query = 'SELECT * FROM reserve T0 '
+            + 'INNER JOIN plate T1 '
+            + 'ON T0.plateId = T1.id '
+            + 'INNER JOIN user T2 '
+            + 'ON T0.cookerId = T2.id '
+            + 'where comerId = ? '
+            + 'and status = \"scheduled" '
+            + 'and Date(T1.data) >= \"' + getCurrentDate() + "\""
+
+        }else if(params.status == "concluded"){
+            //Retorna as reservas onde a data do prato é < que a data atual
+            query = 'SELECT * FROM reserve T0 '
+            + 'INNER JOIN plate T1 '
+            + 'ON T0.plateId = T1.id '
+            + 'INNER JOIN user T2 '
+            + 'ON T0.cookerId = T2.id '
+            + 'where comerId = ? '
+            + 'and status = \"scheduled" '
+            + 'and Date(T1.data) < \"' + getCurrentDate() + "\""
+
+        }else{
+            //Retorna as reservas que estão aguardando aprovação da solicitação
+            query = 'SELECT * FROM reserve T0 '
+            + 'INNER JOIN plate T1 '
+            + 'ON T0.plateId = T1.id '
+            + 'INNER JOIN user T2 '
+            + 'ON T0.cookerId = T2.id '
+            + 'where comerId = ? and status = ?'
+        }
+
+        console.log(query)
+
         const [rows] = await conn.query(query, [params.id, params.status])
         return http.returnSuccess(rows)
     } catch (error) {
@@ -285,12 +325,43 @@ async function getReserveByComerId(params) {
 
 async function getReserveByCookerId(params) {
     try {
-        const query = 'SELECT * FROM reserve T0 '
-        + 'INNER JOIN plate T1 '
-        + 'ON T0.plateId = T1.id '
-        + 'INNER JOIN user T2 '
-        + 'ON T0.comerId = T2.id '
-        + 'where cookerId = ? and status = ?'
+
+        var query = ""
+
+        if (params.status == "scheduled"){
+            //Retorna as reservas onde a data do prato é >= a data atual
+            query = 'SELECT * FROM reserve T0 '
+            + 'INNER JOIN plate T1 '
+            + 'ON T0.plateId = T1.id '
+            + 'INNER JOIN user T2 '
+            + 'ON T0.comerId = T2.id '
+            + 'where cookerId = ? '
+            + 'and status = \"scheduled" '
+            + 'and Date(T1.data) >= \"' + getCurrentDate() + "\""
+
+        }else if(params.status == "concluded"){
+            //Retorna as reservas onde a data do prato é < que a data atual
+            query = 'SELECT * FROM reserve T0 '
+            + 'INNER JOIN plate T1 '
+            + 'ON T0.plateId = T1.id '
+            + 'INNER JOIN user T2 '
+            + 'ON T0.comerId = T2.id '
+            + 'where cookerId = ? '
+            + 'and status = \"scheduled" '
+            + 'and Date(T1.data) < \"' + getCurrentDate() + "\""
+
+        }else{
+            //Retorna as reservas que estão aguardando aprovação da solicitação
+            query = 'SELECT * FROM reserve T0 '
+            + 'INNER JOIN plate T1 '
+            + 'ON T0.plateId = T1.id '
+            + 'INNER JOIN user T2 '
+            + 'ON T0.comerId = T2.id '
+            + 'where cookerId = ? and status = ?'
+        }
+
+        console.log(query)
+
         const [rows] = await conn.query(query, [params.id, params.status])
         return http.returnSuccess(rows)
     } catch (error) {
