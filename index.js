@@ -143,7 +143,7 @@ server.get('/notification/:token', async (req, res) => {
     return res.status(200).json("{}")
 });
 
-server.listen(3000, () => {
+server.listen(21048, () => {
     console.log("Servidor esta rodando..... king host update")
 });
 
