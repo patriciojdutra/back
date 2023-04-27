@@ -26,14 +26,6 @@ server.post('/user', async (req, res) => {
 });
 
 server.put('/user', async (req, res) => {
-   console.log("\nRequest = " + JSON.stringify(req.body))
-   const result = await db.updateTaxDataUser(req.body)
-   console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
-   return res.status(result[0]).json(result[1])
-});
-
-
-server.put('/user', async (req, res) => {
     console.log("\nupdateUser Request = " + JSON.stringify(req.body))
     const result = await db.updateUser(req.body)
     console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
