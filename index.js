@@ -143,7 +143,34 @@ server.get('/notification/:token', async (req, res) => {
     return res.status(200).json("{}")
 });
 
+server.get('/comer/:id', async (req, res) => {
+    console.log("\nGet Comer Rating Request = " + req.params.id)
+    const result = await db.getComerRatingById(req.params.id)
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    return res.status(result[0]).json(result[1])
+});
+
+server.get('/cooker/:id', async (req, res) => {
+    console.log("\nGet Cooker Rating Request = " + req.params.id)
+    const result = await db.getCookerRatingById(req.params.id)
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    return res.status(result[0]).json(result[1])
+});
+
+server.post('/rating', async (req, res) => {
+    console.log("\nRating User Request = " + JSON.stringify(req.body))
+    const result = await db.userRating(req.body)
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    return res.status(result[0]).json(result[1])
+});
+
+server.get('/user/:cookerId/:comerId/:isCooker', async (req, res) => {
+    console.log("\ncheckUserRating Request = " + JSON.stringify(req.params))
+    const result = await db.checkUserRating(req.params.cookerId, req.params.comerId, req.params.isCooker)
+    console.log("\nResponse = " + result)
+    return res.status(result[0]).json(result[1])
+});
+
 server.listen(21048, () => {
     console.log("Servidor esta rodando..... king host update")
 });
-
