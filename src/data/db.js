@@ -78,7 +78,7 @@ async function updateUser(user) {
         q = q + endQuery
         l[i] = user["id"]
         console.log(q)
-        const [result] = await conn.query(q,l)
+        const [result] = await conn.query(q, l)
         return getUserById(user.id)
     } catch (error) {
         return http.returnError(error)
@@ -176,10 +176,10 @@ async function getPlateById(id) {
 
 async function changeQuantityOfPlatesAvailableById(id, value) {
     try {
-        if(value > 0){
+        if (value > 0) {
             const query = 'UPDATE plate SET quantidade = quantidade + ? WHERE id = ?'
             const [rows] = await conn.query(query, [value, id])
-        }else{
+        } else {
             const query = 'UPDATE plate SET quantidade = quantidade ? WHERE id = ? AND quantidade > 0'
             const [rows] = await conn.query(query, [value, id])
         }
@@ -192,11 +192,11 @@ async function changeQuantityOfPlatesAvailableById(id, value) {
 async function getDetailsPlate(id) {
     try {
         const query = 'SELECT * FROM plate T0 '
-        + 'INNER JOIN address T1 '
-        + 'ON T0.userId = T1.userId '
-        + 'INNER JOIN user T2 '
-        + 'ON T0.userId = T2.id '
-        + 'where T0.id = ?;'
+            + 'INNER JOIN address T1 '
+            + 'ON T0.userId = T1.userId '
+            + 'INNER JOIN user T2 '
+            + 'ON T0.userId = T2.id '
+            + 'where T0.id = ?;'
         const [rows] = await conn.query(query, [id])
         return http.returnSuccess(rows[0])
     } catch (error) {
@@ -241,17 +241,17 @@ async function createReserve(reserve) {
     try {
         const query = 'INSERT INTO reserve (`status`, `cookerId`, `comerId`, `plateId`, `orderId`, chargeId) VALUES (?, ?, ?, ?, ?, ?);'
         const [result] = await conn.query(query, [reserve.status, reserve.cookerId, reserve.comerId, reserve.plateId, reserve.orderId, reserve.chargeId])
-        
+
         const plate = await changeQuantityOfPlatesAvailableById(reserve.plateId, -1)
 
         //notification change status
         const cooker = await getUserById(reserve.cookerId)
         const comer = await getUserById(reserve.comerId)
         notification.sendMessage(
-            cooker[1].data.token, 
-            "Nova solicitação", 
-            "O comer " + comer[1].data.name + " esta aguardando sua resposta" )
-        
+            cooker[1].data.token,
+            "Nova solicitação",
+            "O comer " + comer[1].data.name + " esta aguardando sua resposta")
+
         return getReserveById(result.insertId)
     } catch (error) {
         return http.returnError(error)
@@ -268,7 +268,7 @@ async function getReserveById(id) {
     }
 }
 
-function getCurrentDate(){
+function getCurrentDate() {
     const dataAtual = new Date();
     const dia = dataAtual.getDate(); // Retorna o dia do mês (1-31)
     const mes = dataAtual.getMonth() + 1; // Retorna o mês (0-11). Adiciona 1 para ajustar o índice baseado em zero.
@@ -282,36 +282,36 @@ async function getReserveByComerId(params) {
 
         var query = ""
 
-        if (params.status == "scheduled"){
+        if (params.status == "scheduled") {
             //Retorna as reservas onde a data do prato é >= a data atual
             query = 'SELECT * FROM reserve T0 '
-            + 'INNER JOIN plate T1 '
-            + 'ON T0.plateId = T1.id '
-            + 'INNER JOIN user T2 '
-            + 'ON T0.cookerId = T2.id '
-            + 'where comerId = ? '
-            + 'and status = \"scheduled" '
-            + 'and Date(T1.data) >= \"' + getCurrentDate() + "\""
+                + 'INNER JOIN plate T1 '
+                + 'ON T0.plateId = T1.id '
+                + 'INNER JOIN user T2 '
+                + 'ON T0.cookerId = T2.id '
+                + 'where comerId = ? '
+                + 'and status = \"scheduled" '
+                + 'and Date(T1.data) >= \"' + getCurrentDate() + "\""
 
-        }else if(params.status == "concluded"){
+        } else if (params.status == "concluded") {
             //Retorna as reservas onde a data do prato é < que a data atual
             query = 'SELECT * FROM reserve T0 '
-            + 'INNER JOIN plate T1 '
-            + 'ON T0.plateId = T1.id '
-            + 'INNER JOIN user T2 '
-            + 'ON T0.cookerId = T2.id '
-            + 'where comerId = ? '
-            + 'and status = \"scheduled" '
-            + 'and Date(T1.data) < \"' + getCurrentDate() + "\""
+                + 'INNER JOIN plate T1 '
+                + 'ON T0.plateId = T1.id '
+                + 'INNER JOIN user T2 '
+                + 'ON T0.cookerId = T2.id '
+                + 'where comerId = ? and comerRated = \"false\"'
+                + 'and status = \"scheduled" '
+                + 'and Date(T1.data) < \"' + getCurrentDate() + "\""
 
-        }else{
+        } else {
             //Retorna as reservas que estão aguardando aprovação da solicitação
             query = 'SELECT * FROM reserve T0 '
-            + 'INNER JOIN plate T1 '
-            + 'ON T0.plateId = T1.id '
-            + 'INNER JOIN user T2 '
-            + 'ON T0.cookerId = T2.id '
-            + 'where comerId = ? and status = ?'
+                + 'INNER JOIN plate T1 '
+                + 'ON T0.plateId = T1.id '
+                + 'INNER JOIN user T2 '
+                + 'ON T0.cookerId = T2.id '
+                + 'where comerId = ? and status = ?'
         }
 
         console.log(query)
@@ -328,36 +328,36 @@ async function getReserveByCookerId(params) {
 
         var query = ""
 
-        if (params.status == "scheduled"){
+        if (params.status == "scheduled") {
             //Retorna as reservas onde a data do prato é >= a data atual
             query = 'SELECT * FROM reserve T0 '
-            + 'INNER JOIN plate T1 '
-            + 'ON T0.plateId = T1.id '
-            + 'INNER JOIN user T2 '
-            + 'ON T0.comerId = T2.id '
-            + 'where cookerId = ? '
-            + 'and status = \"scheduled" '
-            + 'and Date(T1.data) >= \"' + getCurrentDate() + "\""
+                + 'INNER JOIN plate T1 '
+                + 'ON T0.plateId = T1.id '
+                + 'INNER JOIN user T2 '
+                + 'ON T0.comerId = T2.id '
+                + 'where cookerId = ? '
+                + 'and status = \"scheduled" '
+                + 'and Date(T1.data) >= \"' + getCurrentDate() + "\""
 
-        }else if(params.status == "concluded"){
+        } else if (params.status == "concluded") {
             //Retorna as reservas onde a data do prato é < que a data atual
             query = 'SELECT * FROM reserve T0 '
-            + 'INNER JOIN plate T1 '
-            + 'ON T0.plateId = T1.id '
-            + 'INNER JOIN user T2 '
-            + 'ON T0.comerId = T2.id '
-            + 'where cookerId = ? '
-            + 'and status = \"scheduled" '
-            + 'and Date(T1.data) < \"' + getCurrentDate() + "\""
+                + 'INNER JOIN plate T1 '
+                + 'ON T0.plateId = T1.id '
+                + 'INNER JOIN user T2 '
+                + 'ON T0.comerId = T2.id '
+                + 'where cookerId = ? and cookerRated = \"false\"'
+                + 'and status = \"scheduled" '
+                + 'and Date(T1.data) < \"' + getCurrentDate() + "\""
 
-        }else{
+        } else {
             //Retorna as reservas que estão aguardando aprovação da solicitação
             query = 'SELECT * FROM reserve T0 '
-            + 'INNER JOIN plate T1 '
-            + 'ON T0.plateId = T1.id '
-            + 'INNER JOIN user T2 '
-            + 'ON T0.comerId = T2.id '
-            + 'where cookerId = ? and status = ?'
+                + 'INNER JOIN plate T1 '
+                + 'ON T0.plateId = T1.id '
+                + 'INNER JOIN user T2 '
+                + 'ON T0.comerId = T2.id '
+                + 'where cookerId = ? and status = ?'
         }
 
         console.log(query)
@@ -369,20 +369,20 @@ async function getReserveByCookerId(params) {
     }
 }
 
-async function updateReserve(reserve) { 
+async function updateReserve(reserve) {
     try {
         var query = 'UPDATE reserve SET status = ? WHERE reserveId = ?'
-        const [result] = await conn.query(query,[reserve.status, reserve.reserveId])
+        const [result] = await conn.query(query, [reserve.status, reserve.reserveId])
 
         const res = await getReserveById(reserve.reserveId)
         const comer = await getUserById(res[1].data.comerId)
         const cooker = await getUserById(res[1].data.cookerId)
 
-        if(reserve.status == "canceled"){
+        if (reserve.status == "canceled") {
             console.log("\n Alterando quantidade disponivel do prato: " + res[1].data.plateId)
             const plate = await changeQuantityOfPlatesAvailableById(res[1].data.plateId, 1)
         }
-        
+
         //notification change status
         notification.sendMessage(
             comer[1].data.token, // token device
@@ -394,6 +394,76 @@ async function updateReserve(reserve) {
         return http.returnError(error)
     }
 }
+
+async function getComerRatingById(id) {
+    try {
+        const query = 'select * From comerRating where id_comer = ?'
+        const [rows] = await conn.query(query, [id])
+        return http.returnSuccess(rows[0])
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
+
+async function getCookerRatingById(id) {
+    try {
+        const query = 'select * From cookerRating where id_cooker = ?'
+        const [rows] = await conn.query(query, [id])
+        return http.returnSuccess(rows[0])
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
+async function checkUserRating(cookerId, comerId, isCooker) {
+    let query;
+    try {
+        if (isCooker) {
+            query = 'SELECT * FROM cookerRating WHERE id_cooker = ? AND id_comer = ?'
+        } else {
+            query = 'SELECT * FROM comerRating WHERE id_cooker = ? AND id_comer = ?'
+        }
+        const [rows] = await conn.query(query, [cookerId, comerId])
+        const result = rows.length !== 0
+        return http.returnSuccess({"hasRating":result})
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
+async function cookerRating(rating) {
+    try {
+        const query = 'INSERT INTO `comerRating` (`id_comer`,`id_cooker`,`rating`,`date`, `commentary`) VALUES (?, ?, ?, ?, ?)'
+        const [result] = await conn.query(query, [rating.id, rating.id_comer, rating.id_cooker, rating.rating, rating.date, rating.commentary])
+        return http.returnSuccess(result)
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
+async function userRating(rating) {
+    try {
+        var query;
+        var query2;
+
+        if (rating.userType === 'Cooker') {
+            query = 'INSERT INTO `cookerRating` (`id_cooker`,`id_comer`, `id_reserve`, `rating`,`date`, `commentary`) VALUES (?, ?, ?, ?, ?, ?)'
+            query2 = 'UPDATE reserve SET cookerRated = ? WHERE reserveId = ?'
+        } else {
+            query = 'INSERT INTO `comerRating` (`id_cooker`,`id_comer`, `id_reserve`, `rating`,`date`, `commentary`) VALUES (?, ?, ?, ?, ?, ?)'
+            query2 = 'UPDATE reserve SET comerRated = ? WHERE reserveId = ?'
+        }
+        
+        const [result] = await conn.query(query, [rating.id_cooker, rating.id_comer, rating.id_reserve, rating.rating, rating.date, rating.commentary])
+        const [result2] = await conn.query(query2, ['true', rating.id_reserve])
+
+        return http.returnSuccess(result)
+    } catch (error) {
+        return http.returnError(error)
+    }
+}
+
 
 
 module.exports = {
@@ -408,12 +478,16 @@ module.exports = {
     updateAddress,
     savePlate,
     getPlateById,
-    getPlatesByLocation, 
+    getPlatesByLocation,
     updateUser,
     getDetailsPlate,
     createReserve,
     getReserveByComerId,
     getReserveByCookerId,
-    updateReserve, 
-    deleteUserById
+    updateReserve,
+    deleteUserById,
+    getComerRatingById,
+    getCookerRatingById,
+    userRating,
+    checkUserRating
 }
