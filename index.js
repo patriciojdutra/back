@@ -159,7 +159,14 @@ server.get('/cooker/:id', async (req, res) => {
 
 server.post('/rating', async (req, res) => {
     console.log("\nRating User Request = " + JSON.stringify(req.body))
-    const result = await db.userRating(req.body)
+    const result = await db.rate(req.body)
+    console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
+    return res.status(result[0]).json(result[1])
+});
+
+server.get('/rating/:userId/:userType', async (req, res) => {
+    console.log("\ngetRating Request = " + req.params.userId + " " + req.params.userType)
+    const result = await db.getRating(req.params.userId, req.params.userType)
     console.log("\nResponse = " + result[0] + ' - ' + JSON.stringify(result[1]))
     return res.status(result[0]).json(result[1])
 });
@@ -171,6 +178,6 @@ server.get('/user/:cookerId/:comerId/:isCooker', async (req, res) => {
     return res.status(result[0]).json(result[1])
 });
 
-server.listen(21048, () => {
+server.listen(21048, () => { //21048
     console.log("Servidor esta rodando..... king host update")
 });

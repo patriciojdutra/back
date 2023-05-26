@@ -197,8 +197,13 @@ async function getDetailsPlate(id) {
             + 'INNER JOIN user T2 '
             + 'ON T0.userId = T2.id '
             + 'where T0.id = ?;'
+
         const [rows] = await conn.query(query, [id])
-        return http.returnSuccess(rows[0])
+        const result = rows[0]
+        let note = await getNoteUser(result.userId, "Cooker")
+        result.ratingCooker = note.ratingCooker
+
+        return http.returnSuccess(result)
     } catch (error) {
         return http.returnError(error)
     }
@@ -219,7 +224,7 @@ async function getPlatesByLocation(latitude, longitude, distance) {
             + 'HAVING distance < ? '
             + 'ORDER BY distance ASC '
             + 'LIMIT 10; '
-        const [rows] = await conn.query(query, [latitude, longitude, latitude, distance])
+        const [rows] = await conn.query(query, [latitude, longitude, latitude, 5000])
         return http.returnSuccess(rows)
     } catch (error) {
         return http.returnError(error)
@@ -442,20 +447,20 @@ async function cookerRating(rating) {
     }
 }
 
-async function userRating(rating) {
+async function rate(rating) {
     try {
         var query;
         var query2;
 
         if (rating.userType === 'Cooker') {
-            query = 'INSERT INTO `cookerRating` (`id_cooker`,`id_comer`, `id_reserve`, `rating`,`date`, `commentary`) VALUES (?, ?, ?, ?, ?, ?)'
+            query = 'INSERT INTO `rating` (`id_cooker`,`id_comer`, `id_reserve`, `rating`,`date`, `commentary`, `evaluatorId`, `evaluatorName`, `urlImageEvaluator`, `ratedId`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
             query2 = 'UPDATE reserve SET cookerRated = ? WHERE reserveId = ?'
         } else {
-            query = 'INSERT INTO `comerRating` (`id_cooker`,`id_comer`, `id_reserve`, `rating`,`date`, `commentary`) VALUES (?, ?, ?, ?, ?, ?)'
+            query = 'INSERT INTO `rating` (`id_cooker`,`id_comer`, `id_reserve`, `rating`,`date`, `commentary`, `evaluatorId`, `evaluatorName`, `urlImageEvaluator`, `ratedId`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
             query2 = 'UPDATE reserve SET comerRated = ? WHERE reserveId = ?'
         }
         
-        const [result] = await conn.query(query, [rating.id_cooker, rating.id_comer, rating.id_reserve, rating.rating, rating.date, rating.commentary])
+        const [result] = await conn.query(query, [rating.id_cooker, rating.id_comer, rating.id_reserve, rating.rating, new Date(rating.date), rating.commentary, rating.evaluatorId, rating.evaluatorName, rating.urlImageEvaluator, rating.ratedId])
         const [result2] = await conn.query(query2, ['true', rating.id_reserve])
 
         return http.returnSuccess(result)
@@ -464,7 +469,42 @@ async function userRating(rating) {
     }
 }
 
+async function getRating(userId, userType) {
+    try {
+        const result = await getNoteUser(userId, userType)
+        return http.returnSuccess(result)
+    }catch (error) {
+        return http.returnError(error)
+    }
+}
 
+async function getNoteUser(userId, userType) {
+    const result = {}
+
+    try {
+        var query;
+
+        if (userType === 'Cooker') {
+            query = 'SELECT * FROM rating where id_cooker = ? and ratedId = ? ORDER BY date, id DESC LIMIT 5;'
+        } else {
+            query = 'SELECT * FROM rating where id_comer = ? and ratedId = ? ORDER BY date, id DESC LIMIT 5;'
+        }
+        
+        const [rowsRating] = await conn.query(query, [userId, userId])
+
+        let ratingCooker = 0
+        rowsRating.forEach((e) => {
+            ratingCooker +=  e.rating
+        });
+
+        result.ratingCooker = ratingCooker/rowsRating.length
+        result.comments = rowsRating
+
+        return result
+    }catch (error) {
+        return result
+    }
+}
 
 module.exports = {
     getUserById,
@@ -488,6 +528,7 @@ module.exports = {
     deleteUserById,
     getComerRatingById,
     getCookerRatingById,
-    userRating,
-    checkUserRating
+    rate,
+    checkUserRating,
+    getRating
 }
