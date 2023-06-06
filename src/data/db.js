@@ -2,6 +2,37 @@ const mysql = require('mysql2/promise')
 const http = require('../utils/returnStatusHttp')
 const notification = require('../pushnotification/push')
 
+function getCurrentDate() {
+    const dataAtual = new Date();
+    const dia = dataAtual.getDate(); // Retorna o dia do mês (1-31)
+    const mes = dataAtual.getMonth() + 1; // Retorna o mês (0-11). Adiciona 1 para ajustar o índice baseado em zero.
+    const ano = dataAtual.getFullYear(); // Retorna o ano (quatro dígitos)
+    const dataFormatada = `${ano}-${mes}-${dia}`;
+    return dataFormatada
+}
+
+function isValidDate(date) {
+    return !isNaN(date.getTime());
+  }
+
+function converterStringToDate(dataString) {
+    // Divide a string da data em dia, mês e ano
+    const [dia, mes, ano] = dataString.split('/');
+  
+    // Cria um novo objeto Date usando os valores separados
+    const data = new Date(`${mes}/${dia}/${ano}`);
+  
+    // Verifica se a data é válida
+    if (isValidDate(data)) {
+      return data;
+    } else {
+      console.log('Data inválida!');
+      return null;
+    }
+  }
+
+
+
 const conn = mysql.createPool({
     host: 'mysql25-farm10.kinghost.net',
     user: 'wellcome_add1',
@@ -43,7 +74,15 @@ async function createUser(user) {
 
 async function updateTaxDataUser(taxData) {
     try {
-        const birthDate = new Date(taxData.birthDate)
+        const birthDate = converterStringToDate(taxData.birthDate)
+        if(birthDate == null){
+            const error = {
+                code: taxData.birthDate,
+                message: "Data inválida"
+            }
+            return http.returnError(error, 500)
+        }
+
         const query = 'UPDATE `user` SET `birthDate` = ?, `phone` = ?, `cpf` = ?, `imageUrl` = ? WHERE (`id` = ?)'
         const [result] = await conn.query(query, [birthDate, taxData.phone, taxData.cpf, taxData.imageUrl, taxData.id])
         return getUserById(result.insertId)
@@ -67,8 +106,15 @@ async function updateUser(user) {
                 }
 
                 if (prop == "birthDate") {
-                    const birthDate = new Date(user[prop])
+                    const birthDate = converterStringToDate(user[prop])
                     l[i] = birthDate
+                    if(birthDate == null){
+                       const error = {
+                            code: user[prop],
+                            message: "Data inválida"
+                        }
+                        return http.returnError(error, 500)
+                    }
                 } else {
                     l[i] = user[prop]
                 }
@@ -233,7 +279,16 @@ async function getPlatesByLocation(latitude, longitude, distance) {
 
 async function savePlate(plate) {
     try {
-        const datePlate = new Date(plate.data)
+        const datePlate = converterStringToDate(plate.data)
+        if(datePlate == null){
+            const error = {
+                code: plate.data,
+                message: "Data inválida"
+            }
+            return http.returnError(error, 500)
+        }
+
+
         const query = 'INSERT INTO plate (`userId`, `nome`, `descricao`, `preco`, `quantidade`, `data`, `horario`, `obs`, urlImage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);'
         const [result] = await conn.query(query, [plate.userId, plate.nome, plate.descricao, plate.preco, plate.quantidade, datePlate, plate.horario, plate.obs, plate.urlImage])
         return http.returnSuccess(result)
@@ -271,15 +326,6 @@ async function getReserveById(id) {
     } catch (error) {
         return http.returnError(error)
     }
-}
-
-function getCurrentDate() {
-    const dataAtual = new Date();
-    const dia = dataAtual.getDate(); // Retorna o dia do mês (1-31)
-    const mes = dataAtual.getMonth() + 1; // Retorna o mês (0-11). Adiciona 1 para ajustar o índice baseado em zero.
-    const ano = dataAtual.getFullYear(); // Retorna o ano (quatro dígitos)
-    const dataFormatada = `${ano}-${mes}-${dia}`;
-    return dataFormatada
 }
 
 async function getReserveByComerId(params) {
@@ -322,6 +368,7 @@ async function getReserveByComerId(params) {
         console.log(query)
 
         const [rows] = await conn.query(query, [params.id, params.status])
+
         return http.returnSuccess(rows)
     } catch (error) {
         return http.returnError(error)
@@ -449,6 +496,15 @@ async function cookerRating(rating) {
 
 async function rate(rating) {
     try {
+        const ratingDate = converterStringToDate(rating.date)
+        if(ratingDate == null){
+            const error = {
+                code: rating.date,
+                message: "Data inválida"
+            }
+            return http.returnError(error, 500)
+        }
+
         var query;
         var query2;
 
@@ -460,7 +516,7 @@ async function rate(rating) {
             query2 = 'UPDATE reserve SET comerRated = ? WHERE reserveId = ?'
         }
         
-        const [result] = await conn.query(query, [rating.id_cooker, rating.id_comer, rating.id_reserve, rating.rating, new Date(rating.date), rating.commentary, rating.evaluatorId, rating.evaluatorName, rating.urlImageEvaluator, rating.ratedId])
+        const [result] = await conn.query(query, [rating.id_cooker, rating.id_comer, rating.id_reserve, rating.rating, ratingDate, rating.commentary, rating.evaluatorId, rating.evaluatorName, rating.urlImageEvaluator, rating.ratedId])
         const [result2] = await conn.query(query2, ['true', rating.id_reserve])
 
         return http.returnSuccess(result)
