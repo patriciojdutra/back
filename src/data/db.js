@@ -270,7 +270,7 @@ async function getPlatesByLocation(latitude, longitude, distance) {
             + 'HAVING distance < ? '
             + 'ORDER BY distance ASC '
             + 'LIMIT 10; '
-        const [rows] = await conn.query(query, [latitude, longitude, latitude, 5000])
+        const [rows] = await conn.query(query, [latitude, longitude, latitude, distance])
         return http.returnSuccess(rows)
     } catch (error) {
         return http.returnError(error)
