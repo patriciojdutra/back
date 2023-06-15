@@ -42,7 +42,7 @@ const conn = mysql.createPool({
 
 async function getUserById(id) {
     try {
-        const query = 'select * From user where id = ?'
+        const query = 'SELECT * FROM user T0 LEFT JOIN address T1 ON T0.id = T1.userId where T0.id = ?'
         const [rows] = await conn.query(query, [id])
         return http.returnSuccess(rows[0])
     } catch (error) {
