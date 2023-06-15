@@ -32,7 +32,6 @@ function converterStringToDate(dataString) {
   }
 
 
-
 const conn = mysql.createPool({
     host: 'mysql25-farm10.kinghost.net',
     user: 'wellcome_add1',
@@ -42,7 +41,7 @@ const conn = mysql.createPool({
 
 async function getUserById(id) {
     try {
-        const query = 'SELECT * FROM user T0 LEFT JOIN address T1 ON T0.id = T1.userId where T0.id = ?'
+        const query = 'SELECT T0.*, T1.cep, T1.number, T1.street, T1.district, T1.city, T1.complement, T1.state FROM user T0 LEFT JOIN address T1 ON T0.id = T1.userId where T0.id = ?'
         const [rows] = await conn.query(query, [id])
         return http.returnSuccess(rows[0])
     } catch (error) {
