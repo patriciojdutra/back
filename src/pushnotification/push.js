@@ -2,7 +2,7 @@ var FCM = require('fcm-node');
     var serverKey = 'AAAAJCejK_k:APA91bFeph1hMJ60BJGMDDeztq_V_nRSpxjIPMQxSQuTIKdqNtcqs9QXMPe3oBAgzzWvkmDLv0VEaWMOTPl3MRHcNujwqI_RcQstLR9fpYAny-b_yGVwqloFvma7bldS2258gz6iIbtk';
     var fcm = new FCM(serverKey);
 
-function sendMessage(token, title, message){
+function sendMessage(token, title, message, data = {}){
 
     var message = {
         to: token,
@@ -11,11 +11,11 @@ function sendMessage(token, title, message){
                 body: message
             },
     
-            data: { //you can send only notification or only data(or include both)
-                title: 'ok cdfsdsdfsd',
-                body: '{"name" : "okg ooggle ogrlrl","product_id" : "123","final_price" : "0.00035"}'
-            }
-    
+            data: data 
+            //data = { 
+            //    title: 'reserve',
+            //    body: '{"reserveId" : "' + reserve.reserveId + '", "status" : "' + reserve.status + '}'
+            //}
         };
 
         fcm.send(message, function(err, response) {

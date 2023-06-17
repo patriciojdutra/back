@@ -308,8 +308,13 @@ async function createReserve(reserve) {
         const comer = await getUserById(reserve.comerId)
         notification.sendMessage(
             cooker[1].data.token,
-            "Nova solicitação",
-            "O comer " + comer[1].data.name + " esta aguardando sua resposta")
+            "Uhuul, mais uma venda",
+            comer[1].data.name + " esta aguardando sua confirmação",
+            {
+                title: 'reserve',
+                body: '{"reserveId" : "' + result.insertId + '", "status" : "' + reserve.status + '"}'
+            }
+        )
 
         return getReserveById(result.insertId)
     } catch (error) {
@@ -429,16 +434,23 @@ async function updateReserve(reserve) {
         const comer = await getUserById(res[1].data.comerId)
         const cooker = await getUserById(res[1].data.cookerId)
 
+        var msgResponse = "reserva confirmada"
+
         if (reserve.status == "canceled") {
+            msgResponse = "reserva recusada"
             console.log("\n Alterando quantidade disponivel do prato: " + res[1].data.plateId)
             const plate = await changeQuantityOfPlatesAvailableById(res[1].data.plateId, 1)
         }
 
-        //notification change status
         notification.sendMessage(
-            comer[1].data.token, // token device
-            cooker[1].data.name + " respondeu sua solicitação", // title push
-            "") // msg push
+            comer[1].data.token,
+            "Respondeu sua solicitação",
+            msgResponse,
+            {
+                title: 'reserve',
+                body: '{"reserveId" : "' + reserve.reserveId + '", "status" : "' + reserve.status + '"}'
+            }
+        )
 
         return getReserveById(reserve.reserveId)
     } catch (error) {
