@@ -153,7 +153,7 @@ async function saveAddress(address) {
 async function updateAddress(address) {
     try {
         const userAddress = await getAddressByUserId(address.userId);
-        if (userAddress.success && Object.keys(userAddress.data).length > 0) {
+        if (userAddress[1].data.id > 0) {
             // usu�rio j� tem endere�o cadastrado, atualizar endere�o
             const query = 'UPDATE `address` SET `cep` = ?, `number` = ?, `street` = ?, `district` = ?, `complement` = ?, `state` = ?, `city` = ? WHERE (`userId` = ?)';
             const [result] = await conn.query(query, [address.cep, address.number, address.street, address.district, address.complement, address.state, address.city, address.userId]);
